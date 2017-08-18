@@ -152,9 +152,3 @@ new Vue({
 
 	}
 })
-
-
-
-//1 - Create var for player and monster with health, damage-range, heal-range, 
-// Math.floor((Math.random() * 10) + 1);
-// 2 - When player "plays", have monster attack and resolve what happens to everyone included.
