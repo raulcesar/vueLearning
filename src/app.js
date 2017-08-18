@@ -153,16 +153,10 @@ new Vue({
 	computed: {
 		playerHealthPercentage: function () {
 			var perc = Math.floor(this.player.health / this.player.fullHealth * 100);
-			// if (perc < 0) {
-			// 	perc = 0;
-			// }
 			return perc + '%';
 		},
 		monsterHealthPercentage: function () {
 			var perc = Math.floor(this.monster.health / this.monster.fullHealth * 100);
-			// if (perc < 0) {
-			// 	perc = 0;
-			// }
 			return perc + '%';
 		}
 
