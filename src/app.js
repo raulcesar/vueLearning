@@ -4,13 +4,15 @@
 var checkForDeaths = function (player, monster) {
 	var ret = {};
 	if (monster.health <= 0) {
-		this.gameactive = false;
+		monster.healthPercentage = '0px';
+		monster.health = 0;
 		ret.monsterMsg = 'Monster was slain!!!'
 		ret.gameOver = true;
 	}
 
 	if (player.health <= 0) {
-		this.gameactive = false;
+		player.healthPercentage = '0px';
+		player.health = 0;
 		ret.playerMsg = 'Player was slain!!!'
 		ret.gameOver = true;
 	}
@@ -20,14 +22,21 @@ var checkForDeaths = function (player, monster) {
 
 var calcDamage = function (entity, specialAttack) {
 	var multiplier = 1;
+	var i = Math.floor(Math.random() * 10);
+	var damage = entity.damageRange[i];
 	if (specialAttack) {
-		if (Math.random() > 0.5) {
+		var hit = Math.random();
+		if (hit > 0.5) {
 			return 0;
 		}
-		multiplier = 3;
+		if (damage === 0) {
+			damage = 3;
+		}
+		
+		damage *= 3;
 	}
-	var i = Math.floor(Math.random() * 10);
-	return entity.damageRange[i] * multiplier;
+	
+	return damage;
 }
 
 var calcHeal = function (entity) {
@@ -92,18 +101,18 @@ new Vue({
 		gameactive: false,
 
 		player: {
-			fullHealth: 100,
-			health: 100,
+			fullHealth: 150,
+			health: 150,
 			healthPercentage: '100%',
 			damageRange: [0, 2, 2, 2, 3, 3, 4, 1, 1, 10],
-			healRange: [1, 2, 2, 2, 3, 3, 4, 1, 1, 1]
+			healRange: [10, 20, 20, 2, 3, 3, 4, 10, 10, 10]
 		},
 
 		monster: {
 			fullHealth: 100,
 			health: 100,
 			healthPercentage: '100%',
-			damageRange: [20, 20, 6, 2, 3, 3, 4, 1, 5, 5],
+			damageRange: [20, 20, 60, 2, 3, 3, 4, 10, 5, 5],
 			healRange: [1, 2, 2, 2, 3, 3, 4, 1, 1, 1]
 		},
 
@@ -112,27 +121,26 @@ new Vue({
 	},
 	methods: {
 		play: function (action) {
-			console.log('action: ' + action);
 			var ret = actions[action](this.player, this.monster);
-			this.msgs.push(ret);
+			this.msgs.splice(0, 0, ret);
 			this.gameactive = !ret.gameOver;
 
 			ret = doMonsterAttack(this.player, this.monster);
-			this.msgs.push(ret);
+			this.msgs.splice(0, 0, ret);
+
+			this.player.healthPercentage = Math.floor(this.player.health / this.player.fullHealth * 100) + '%';
+			this.monster.healthPercentage = Math.floor(this.monster.health / this.monster.fullHealth * 100) + '%';
 
 			ret = checkForDeaths(this.player, this.monster);
 			if (ret.playerMsg || ret.monsterMsg) {
-				this.msgs.push(ret);
+				this.msgs.splice(0, 0, ret);
 				if (ret.gameOver) {
 					this.gameactive = false;
 				}
 			}
 
-			this.player.healthPercentage = Math.floor(this.player.health / this.player.fullHealth * 100) + '%';
-			this.monster.healthPercentage = Math.floor(this.monster.health / this.monster.fullHealth * 100) + '%';
 		},
 		reset: function () {
-			console.log('reset');
 			this.msgs.splice(0);
 			this.player.health = this.player.fullHealth;
 			this.monster.health = this.monster.fullHealth;
@@ -144,10 +152,18 @@ new Vue({
 
 	computed: {
 		playerHealthPercentage: function () {
-			return Math.floor(this.player.health / this.player.fullHealth * 100) + '%';
+			var perc = Math.floor(this.player.health / this.player.fullHealth * 100);
+			// if (perc < 0) {
+			// 	perc = 0;
+			// }
+			return perc + '%';
 		},
 		monsterHealthPercentage: function () {
-			return Math.floor(this.monster.health / this.monster.fullHealth * 100) + '%';
+			var perc = Math.floor(this.monster.health / this.monster.fullHealth * 100);
+			// if (perc < 0) {
+			// 	perc = 0;
+			// }
+			return perc + '%';
 		}
 
 	}
